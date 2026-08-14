@@ -2,8 +2,11 @@
 // Per-site strategies; overlay layer in <body> so SPA re-renders can't wipe us.
 
 const DEFAULTS = {
-  magnific:   { cost: 864, credits: 1000000 },  // $864 / 1M credits
-  higgsfield: { cost: 292, credits: 6000 },     // $292 / 6000 credits
+  onboarded: false,
+  services: {
+    magnific:   { enabled: false, cost: 864, credits: 1000000 },  // $864 / 1M credits
+    higgsfield: { enabled: false, cost: 292, credits: 6000 },     // $292 / 6000 credits
+  },
 };
 
 let USD_PER_CREDIT = 0;
@@ -14,10 +17,26 @@ function service() {
   return "magnific"; // magnific.com / magnific.ai / freepik.com
 }
 
+function normalize(raw) {
+  const out = JSON.parse(JSON.stringify(DEFAULTS));
+  if (!raw) return out;
+  if (raw.services) {
+    for (const k of Object.keys(out.services)) {
+      if (raw.services[k]) Object.assign(out.services[k], raw.services[k]);
+    }
+    return out;
+  }
+  // v1.0 shape without enabled flags — both services were active
+  for (const k of Object.keys(out.services)) {
+    if (raw[k]) Object.assign(out.services[k], raw[k], { enabled: true });
+  }
+  return out;
+}
+
 function loadConfig() {
-  chrome.storage.sync.get({ config: DEFAULTS }, ({ config }) => {
-    const c = config[service()] || DEFAULTS[service()];
-    USD_PER_CREDIT = c.credits > 0 ? c.cost / c.credits : 0;
+  chrome.storage.sync.get({ config: null }, ({ config }) => {
+    const c = normalize(config).services[service()];
+    USD_PER_CREDIT = c.enabled && c.credits > 0 ? c.cost / c.credits : 0;
     render();
   });
 }
@@ -112,7 +131,7 @@ function findWordCosts(out) {
 }
 
 function render() {
-  if (!USD_PER_CREDIT) return;
+  if (!USD_PER_CREDIT) { layer.textContent = ""; return; }
   const found = [];
   if (service() === "higgsfield") findHiggsfieldCosts(found);
   else findMagnificCosts(found);

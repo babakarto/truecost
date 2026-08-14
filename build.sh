@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 
 rm -rf dist
 mkdir -p dist/_stage
-cp -r content.js popup.html popup.js icons dist/_stage/
+cp -r content.js popup.html popup.js onboarding.html onboarding.js shared.js background.js icons assets dist/_stage/
 
 # Chromium package
 cp manifest.json dist/_stage/manifest.json

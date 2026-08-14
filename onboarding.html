@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Welcome to TrueCost</title>
+<style>
+  :root {
+    --bg: #0b0b0d;
+    --card: #1c1c1e;
+    --card-2: #232326;
+    --field: #2c2c2e;
+    --hairline: rgba(255,255,255,0.08);
+    --text: #f2f2f7;
+    --text-2: #98989e;
+    --gold: #e8c268;
+    --blue: #0a84ff;
+    --green: #30d158;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, "SF Pro Display", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    display: flex; align-items: center; justify-content: center;
+    user-select: none;
+  }
+  .wrap { width: 620px; max-width: calc(100vw - 48px); padding: 48px 0; text-align: center; }
+
+  .app-icon { width: 72px; height: 72px; border-radius: 18px; margin-bottom: 20px; }
+  h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.03em; }
+  .sub { font-size: 16px; color: var(--text-2); margin-top: 8px; letter-spacing: -0.01em; }
+
+  .step { display: none; }
+  .step.active { display: block; animation: fade .35s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin: 44px 0 20px; }
+
+  .cards { display: flex; gap: 16px; justify-content: center; }
+  .pick {
+    flex: 1; max-width: 280px; cursor: pointer;
+    background: var(--card); border: 2px solid transparent; border-radius: 20px;
+    padding: 28px 20px 24px; position: relative;
+    transition: border-color .18s ease, transform .12s ease, background .18s ease;
+  }
+  .pick:hover { background: var(--card-2); transform: translateY(-2px); }
+  .pick.selected { border-color: var(--blue); }
+  .pick img { width: 64px; height: 64px; border-radius: 16px; margin-bottom: 14px; }
+  .pick .name { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+  .pick .desc { font-size: 12px; color: var(--text-2); margin-top: 3px; }
+  .check {
+    position: absolute; top: 12px; right: 12px;
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1.5px solid var(--hairline); background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: transparent;
+    transition: all .18s ease;
+  }
+  .pick.selected .check { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+  .plans { display: flex; flex-direction: column; gap: 14px; text-align: left; }
+  .plan {
+    background: var(--card); border-radius: 16px; overflow: hidden; display: none;
+  }
+  .plan.on { display: block; animation: fade .3s ease; }
+  .plan-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px 12px; }
+  .plan-head img { width: 28px; height: 28px; border-radius: 7px; }
+  .plan-head span { font-size: 14px; font-weight: 600; }
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px; border-top: 1px solid var(--hairline);
+  }
+  .row label { font-size: 13.5px; }
+  .row .hint { display: block; font-size: 11px; color: var(--text-2); margin-top: 1px; }
+  .row input {
+    width: 130px; text-align: right;
+    background: var(--field); color: var(--text);
+    border: 1px solid transparent; border-radius: 9px;
+    padding: 8px 10px; font-size: 14px; font-variant-numeric: tabular-nums;
+    outline: none; transition: border-color .15s ease;
+  }
+  .row input:focus { border-color: var(--blue); }
+  .row input::-webkit-outer-spin-button,
+  .row input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .rate { padding: 10px 16px; border-top: 1px solid var(--hairline); font-size: 12px; color: var(--gold); font-variant-numeric: tabular-nums; }
+
+  .cta {
+    margin-top: 32px; padding: 13px 44px;
+    border: 0; border-radius: 13px;
+    background: var(--blue); color: #fff;
+    font-family: inherit; font-size: 15px; font-weight: 600; letter-spacing: -0.01em;
+    cursor: pointer; transition: filter .15s ease, opacity .2s ease, transform .05s ease;
+  }
+  .cta:hover { filter: brightness(1.12); }
+  .cta:active { transform: scale(0.985); }
+  .cta:disabled { opacity: 0.35; cursor: default; filter: none; }
+  .skip {
+    display: block; margin: 14px auto 0; background: none; border: 0;
+    color: var(--text-2); font-family: inherit; font-size: 12.5px; cursor: pointer;
+  }
+  .skip:hover { color: var(--text); }
+
+  .done-icon {
+    width: 72px; height: 72px; border-radius: 50%; margin: 44px auto 18px;
+    background: var(--green); display: flex; align-items: center; justify-content: center;
+    font-size: 34px; color: #fff;
+  }
+  .done-note { font-size: 13px; color: var(--text-2); margin-top: 10px; line-height: 1.6; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <img class="app-icon" src="icons/icon128.png" alt="">
+    <h1>Welcome to TrueCost</h1>
+    <p class="sub">See what AI credits really cost you.</p>
+
+    <!-- STEP 1 — pick services -->
+    <div class="step active" id="step1">
+      <h2>Which tools do you use?</h2>
+      <div class="cards">
+        <div class="pick" data-service="magnific">
+          <div class="check">✓</div>
+          <img src="assets/magnific.png" alt="Magnific">
+          <div class="name">Magnific · Freepik</div>
+          <div class="desc">Upscaling &amp; generative suite</div>
+        </div>
+        <div class="pick" data-service="higgsfield">
+          <div class="check">✓</div>
+          <img src="assets/higgsfield.png" alt="Higgsfield">
+          <div class="name">Higgsfield</div>
+          <div class="desc">AI video &amp; image creation</div>
+        </div>
+      </div>
+      <button class="cta" id="continue" disabled>Continue</button>
+    </div>
+
+    <!-- STEP 2 — plans -->
+    <div class="step" id="step2">
+      <h2>Your plan</h2>
+      <div class="plans">
+        <div class="plan" id="plan-magnific">
+          <div class="plan-head"><img src="assets/magnific.png" alt=""><span>Magnific · Freepik</span></div>
+          <div class="row">
+            <label>Subscription<span class="hint">what you pay, in USD</span></label>
+            <input type="number" id="mag-cost" min="0" step="0.01">
+          </div>
+          <div class="row">
+            <label>Credits included<span class="hint">in your plan</span></label>
+            <input type="number" id="mag-credits" min="1" step="1">
+          </div>
+          <div class="rate" id="mag-rate"></div>
+        </div>
+        <div class="plan" id="plan-higgsfield">
+          <div class="plan-head"><img src="assets/higgsfield.png" alt=""><span>Higgsfield</span></div>
+          <div class="row">
+            <label>Subscription<span class="hint">what you pay, in USD</span></label>
+            <input type="number" id="hig-cost" min="0" step="0.01">
+          </div>
+          <div class="row">
+            <label>Credits included<span class="hint">in your plan</span></label>
+            <input type="number" id="hig-credits" min="1" step="1">
+          </div>
+          <div class="rate" id="hig-rate"></div>
+        </div>
+      </div>
+      <button class="cta" id="finish">Finish</button>
+      <button class="skip" id="back">Back</button>
+    </div>
+
+    <!-- STEP 3 — done -->
+    <div class="step" id="step3">
+      <div class="done-icon">✓</div>
+      <h2 style="margin-top:0">You're all set</h2>
+      <p class="done-note">
+        Prices will appear next to credit costs as you browse.<br>
+        Change your plan anytime from the toolbar icon.
+      </p>
+    </div>
+  </div>
+
+  <script src="shared.js"></script>
+  <script src="onboarding.js"></script>
+</body>
+</html>

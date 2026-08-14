@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0 — 2026-08-14
+
+- **Onboarding**: on first install, a welcome page asks which tools you use
+  (Magnific, Higgsfield, or both) and sets up your plans
+- **Adaptive popup**: shows only the services you enabled; one-click
+  "+ Add" button for the others, "Remove" to disable
+- Service logos throughout the UI
+- Content script only runs pricing for enabled services
+- Seamless migration from 1.0.0 configs
+
 ## 1.0.0 — 2026-08-14
 
 First public release.

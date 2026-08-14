@@ -7,7 +7,7 @@ $stage = Join-Path $dist "_stage"
 Remove-Item $dist -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force $stage | Out-Null
 
-$shared = @("content.js", "popup.html", "popup.js", "icons")
+$shared = @("content.js", "popup.html", "popup.js", "onboarding.html", "onboarding.js", "shared.js", "background.js", "icons", "assets")
 foreach ($f in $shared) { Copy-Item (Join-Path $root $f) $stage -Recurse }
 
 # Chromium package (Chrome Web Store, Edge Add-ons, Brave, Opera)
