@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --bg: #0b0b0d;
+    --card: #1c1c1e;
+    --field: #2c2c2e;
+    --hairline: rgba(255,255,255,0.08);
+    --text: #f2f2f7;
+    --text-2: #98989e;
+    --gold: #e8c268;
+    --blue: #0a84ff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 320px; padding: 20px 18px 16px;
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, "SF Pro Text", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+    font-size: 13px; -webkit-font-smoothing: antialiased;
+    user-select: none;
+  }
+
+  .header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+  .header img { width: 40px; height: 40px; border-radius: 10px; }
+  .header h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
+  .header p { font-size: 11.5px; color: var(--text-2); margin-top: 1px; }
+
+  .card {
+    background: var(--card); border-radius: 14px;
+    margin-bottom: 12px; overflow: hidden;
+  }
+  .card-title {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 14px 10px;
+    font-size: 13px; font-weight: 600; letter-spacing: -0.01em;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .magnific .dot { background: #ff375f; }
+  .higgsfield .dot { background: #d4f24b; }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 14px; border-top: 1px solid var(--hairline);
+  }
+  .row label { color: var(--text); font-size: 13px; }
+  .row .hint { display: block; font-size: 10.5px; color: var(--text-2); margin-top: 1px; }
+  .row input {
+    width: 110px; text-align: right;
+    background: var(--field); color: var(--text);
+    border: 1px solid transparent; border-radius: 8px;
+    padding: 6px 9px; font-size: 13px; font-variant-numeric: tabular-nums;
+    outline: none; transition: border-color .15s ease, background .15s ease;
+  }
+  .row input:focus { border-color: var(--blue); background: #26262a; }
+  .row input::-webkit-outer-spin-button,
+  .row input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  .rate {
+    padding: 9px 14px; border-top: 1px solid var(--hairline);
+    font-size: 11.5px; color: var(--gold); font-variant-numeric: tabular-nums;
+  }
+
+  button {
+    width: 100%; padding: 11px; margin-top: 4px;
+    border: 0; border-radius: 12px;
+    background: var(--blue); color: #fff;
+    font-family: inherit; font-size: 14px; font-weight: 600; letter-spacing: -0.01em;
+    cursor: pointer; transition: filter .15s ease, transform .05s ease;
+  }
+  button:hover { filter: brightness(1.12); }
+  button:active { transform: scale(0.985); }
+
+  #saved {
+    text-align: center; font-size: 11.5px; color: #30d158;
+    height: 15px; margin-top: 8px; opacity: 0; transition: opacity .2s ease;
+  }
+  #saved.show { opacity: 1; }
+
+  .footer {
+    text-align: center; margin-top: 6px;
+    font-size: 10.5px; color: var(--text-2);
+  }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <img src="icons/icon128.png" alt="">
+    <div>
+      <h1>TrueCost</h1>
+      <p>The real price behind AI credits</p>
+    </div>
+  </div>
+
+  <div class="card magnific">
+    <div class="card-title"><span class="dot"></span>Magnific · Freepik</div>
+    <div class="row">
+      <label>Subscription<span class="hint">what you pay, in USD</span></label>
+      <input type="number" id="mag-cost" min="0" step="0.01" placeholder="864">
+    </div>
+    <div class="row">
+      <label>Credits included<span class="hint">in your plan</span></label>
+      <input type="number" id="mag-credits" min="1" step="1" placeholder="1000000">
+    </div>
+    <div class="rate" id="mag-rate"></div>
+  </div>
+
+  <div class="card higgsfield">
+    <div class="card-title"><span class="dot"></span>Higgsfield</div>
+    <div class="row">
+      <label>Subscription<span class="hint">what you pay, in USD</span></label>
+      <input type="number" id="hig-cost" min="0" step="0.01" placeholder="292">
+    </div>
+    <div class="row">
+      <label>Credits included<span class="hint">in your plan</span></label>
+      <input type="number" id="hig-credits" min="1" step="1" placeholder="6000">
+    </div>
+    <div class="rate" id="hig-rate"></div>
+  </div>
+
+  <button id="save">Save</button>
+  <div id="saved">Saved — open tabs update automatically</div>
+  <div class="footer">Prices appear next to credit costs on supported sites</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
