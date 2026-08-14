@@ -40,12 +40,12 @@ No servers, no tracking, no accounts. Everything runs locally in your browser.
 
 <table align="center">
   <tr>
-    <th>Configure your plans</th>
     <th>First-run onboarding</th>
+    <th>Configure your plans</th>
   </tr>
   <tr>
-    <td valign="top"><img src="docs/popup.png" width="300" alt="TrueCost popup"></td>
     <td valign="top"><img src="docs/onboarding.png" width="620" alt="TrueCost onboarding"></td>
+    <td valign="top"><img src="docs/popup.png" width="300" alt="TrueCost popup"></td>
   </tr>
 </table>
 
