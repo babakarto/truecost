@@ -8,6 +8,24 @@ function rateText(s) {
          (PER[s] * svc.cost / svc.credits).toFixed(2);
 }
 
+// DOM-API builders only — no innerHTML anywhere (defense in depth: nothing
+// dynamic can ever be parsed as HTML, even if a future change makes it dynamic).
+function buildRow(s, f, labelText, hintText, value, min, step) {
+  const row = document.createElement("div");
+  row.className = "row";
+  const label = document.createElement("label");
+  label.textContent = labelText;
+  const hint = document.createElement("span");
+  hint.className = "hint";
+  hint.textContent = hintText;
+  label.appendChild(hint);
+  const inp = document.createElement("input");
+  inp.type = "number"; inp.min = min; inp.step = step;
+  inp.dataset.s = s; inp.dataset.f = f; inp.value = value;
+  row.append(label, inp);
+  return row;
+}
+
 function render() {
   const host = $("cards");
   host.textContent = "";
@@ -18,18 +36,28 @@ function render() {
     const meta = TC_META[s];
     const card = document.createElement("div");
     card.className = "card";
-    card.innerHTML =
-      '<div class="card-title"><img src="' + meta.logo + '" alt=""><span>' + meta.label + "</span>" +
-      '<button class="remove" data-s="' + s + '">Remove</button></div>' +
-      '<div class="row"><label>Subscription<span class="hint">what you pay, in USD</span></label>' +
-      '<input type="number" min="0" step="0.01" data-s="' + s + '" data-f="cost"></div>' +
-      '<div class="row"><label>Credits included<span class="hint">in your plan</span></label>' +
-      '<input type="number" min="1" step="1" data-s="' + s + '" data-f="credits"></div>' +
-      '<div class="rate" id="rate-' + s + '"></div>';
+
+    const title = document.createElement("div");
+    title.className = "card-title";
+    const logo = document.createElement("img");
+    logo.src = meta.logo; logo.alt = "";
+    const name = document.createElement("span");
+    name.textContent = meta.label;
+    const rm = document.createElement("button");
+    rm.className = "remove"; rm.dataset.s = s; rm.textContent = "Remove";
+    title.append(logo, name, rm);
+
+    const rate = document.createElement("div");
+    rate.className = "rate"; rate.id = "rate-" + s;
+
+    card.append(
+      title,
+      buildRow(s, "cost", "Subscription", "what you pay, in USD", cfg.services[s].cost, "0", "0.01"),
+      buildRow(s, "credits", "Credits included", "in your plan", cfg.services[s].credits, "1", "1"),
+      rate
+    );
     host.appendChild(card);
-    card.querySelector('[data-f="cost"]').value = cfg.services[s].cost;
-    card.querySelector('[data-f="credits"]').value = cfg.services[s].credits;
-    $("rate-" + s).textContent = rateText(s);
+    rate.textContent = rateText(s);
   }
 
   // disabled services → "+ Add" button
@@ -38,7 +66,9 @@ function render() {
     const meta = TC_META[s];
     const btn = document.createElement("button");
     btn.className = "add-btn";
-    btn.innerHTML = '<img src="' + meta.logo + '" alt="">+ Add ' + meta.label;
+    const logo = document.createElement("img");
+    logo.src = meta.logo; logo.alt = "";
+    btn.append(logo, document.createTextNode("+ Add " + meta.label));
     btn.addEventListener("click", () => {
       cfg.services[s].enabled = true;
       tcSave(cfg, render);
