@@ -9,7 +9,7 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "truecost@fpvbubu.dev",
+      "id": "truecost@truecost-extension.dev",
       "strict_min_version": "121.0"
     }
   },
