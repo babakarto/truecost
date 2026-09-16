@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.0 — 2026-09-16
+
+- **Promo-aware pricing**: when a site shows a discounted cost next to a
+  crossed-out original (e.g. Magnific "30% less credits until Oct 1", rendered
+  as `<s>4286</s> 3000`), the pill now prices the discounted amount and shows
+  the original USD price struck through beside it
+- Struck-out detection covers `<s>`, `<del>`, `<strike>` and Tailwind
+  `line-through` classes; shared by the Magnific and Higgsfield strategies
+
 ## 1.1.0 — 2026-08-14
 
 - **Onboarding**: on first install, a welcome page asks which tools you use

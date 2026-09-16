@@ -69,7 +69,46 @@ function anchorOf(el) {
   return null;
 }
 
+// Numeric text nodes inside `root`, in document order, each tagged with
+// whether it sits inside a struck-out element (<s>, <del>, line-through).
+function numericNodes(root) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const found = [];
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    const t = node.textContent.trim();
+    if (!NUM_ONLY_RE.test(t)) continue;
+    const credits = parseCredits(t);
+    if (!(credits > 0)) continue;
+    found.push({ credits, struck: isStruck(node.parentElement, root) });
+  }
+  return found;
+}
+
+function isStruck(el, stopAt) {
+  for (let n = el; n && n !== stopAt; n = n.parentElement) {
+    if (n.tagName === "S" || n.tagName === "DEL" || n.tagName === "STRIKE") return true;
+    const cls = typeof n.className === "string" ? n.className : "";
+    if (/(^|\s)line-through(\s|$)/.test(cls)) return true;
+  }
+  return false;
+}
+
+// Discount-aware cost pick: the price to pay is the LAST non-struck number;
+// a struck number before it is the original (pre-discount) price.
+function pickCost(root) {
+  const nums = numericNodes(root);
+  if (!nums.length) return null;
+  const live = nums.filter((n) => !n.struck);
+  if (!live.length) return null;
+  const credits = live[live.length - 1].credits;
+  const struck = nums.filter((n) => n.struck);
+  const original = struck.length ? struck[struck.length - 1].credits : null;
+  return { credits, original: original && original > credits ? original : null };
+}
+
 // MAGNIFIC: #credits sprite icon next to a bare number
+// (with a promo, the badge reads "<s>4286</s> 3000")
 function findMagnificCosts(out) {
   document.querySelectorAll("svg use").forEach((u) => {
     const href = u.getAttribute("href") || u.getAttribute("xlink:href") || "";
@@ -80,33 +119,23 @@ function findMagnificCosts(out) {
     for (let d = 0; d < 3 && box; d++, box = box.parentElement) {
       const t = (box.textContent || "").trim();
       if (t.length > 30) break;
-      const m = t.match(NUM_ONLY_RE);
-      if (!m) continue;
-      const credits = parseCredits(m[1]);
-      if (credits > 0) {
-        const a = anchorOf(box);
-        if (a) out.push({ credits, anchor: a });
-      }
+      const cost = pickCost(box);
+      if (!cost) continue;
+      const a = anchorOf(box);
+      if (a) out.push({ ...cost, anchor: a });
       return;
     }
   });
 }
 
-// HIGGSFIELD: "Generate" buttons — cost = LAST numeric text node
+// HIGGSFIELD: "Generate" buttons — cost = LAST non-struck numeric text node
 // (a preceding numeric node is the crossed-out pre-discount price)
 function findHiggsfieldCosts(out) {
   document.querySelectorAll("button").forEach((b) => {
     const text = b.textContent || "";
     if (!/generate/i.test(text) || text.length > 40) return;
-    const walker = document.createTreeWalker(b, NodeFilter.SHOW_TEXT);
-    let last = null;
-    while (walker.nextNode()) {
-      const t = walker.currentNode.textContent.trim();
-      if (NUM_ONLY_RE.test(t)) last = t;
-    }
-    if (!last) return;
-    const credits = parseCredits(last);
-    if (credits > 0) out.push({ credits, anchor: b });
+    const cost = pickCost(b);
+    if (cost) out.push({ ...cost, anchor: b });
   });
 }
 
@@ -139,13 +168,19 @@ function render() {
 
   const seen = new Set();
   layer.textContent = "";
-  for (const { credits, anchor } of found) {
+  for (const { credits, original, anchor } of found) {
     if (seen.has(anchor)) continue;
     seen.add(anchor);
     const r = anchor.getBoundingClientRect();
     if (r.width === 0 || r.bottom < 0 || r.top > innerHeight) continue;
     const pill = document.createElement("div");
     pill.textContent = priceLabel(credits);
+    if (original) {
+      const was = document.createElement("span");
+      was.textContent = "$" + (original * USD_PER_CREDIT).toFixed(2);
+      was.style.cssText = "margin-left:6px;color:#8b93a7;text-decoration:line-through;font-weight:500;";
+      pill.appendChild(was);
+    }
     pill.style.cssText =
       "position:fixed;left:" + (r.right + 8) + "px;top:" + (r.top + r.height / 2 - 10) + "px;" +
       "background:#1a1d29;border:1px solid #3a4152;color:#ffd766;" +
